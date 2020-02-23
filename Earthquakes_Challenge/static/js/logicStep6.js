@@ -64,19 +64,28 @@ attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap
 	maxZoom: 18,
 	accessToken: API_KEY
 });
+
+let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 18,
+	accessToken: API_KEY
+});
 // Create a base layer that holds both maps.
 let baseMaps = {
   Street: streets,
-  Satellite: Satellite_Streets
+  Satellite: Satellite_Streets,
+  Light: light
 };
  // Create the earthquake layer for our map.
 let earthquakes = new L.LayerGroup();
+let tectonic = new L.LayerGroup(); 
 
 
 // We define an object that contains the overlays.
 // This overlay will be visible all the time.
 let overlays = {
-  Earthquakes: earthquakes
+  Earthquakes: earthquakes,
+  Tectonic: tectonic
 };
 
 let map = L.map('mapid', {
@@ -88,7 +97,13 @@ zoom: 3,
 // Pass our map layers into our layers control and add the layers control to the map.
 L.control.layers(baseMaps, overlays).addTo(map);
 
+let tectonicdata = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
 
+// Create a style for the lines.
+let myStyle = {
+	color: "#ffffa1",
+	weight: 2
+}
 //light.addTo(map);
 // Accessing the Toronto airline routes GeoJSON URL.
 //let torontoHoods = "https://raw.githubusercontent.com/HebaAly71/Mapping_Earthquakes/master/torontoNeighborhoods.json";
@@ -159,6 +174,14 @@ L.geoJson(data, {
 }).addTo(earthquakes);
 })
 earthquakes.addTo(map); 
+d3.json(tectonicdata).then(function(data1) {
+  //console.log(data1);
+// Creating a GeoJSON layer with the retrieved data.
+L.geoJson(data1, {
+  style: myStyle
+   }).addTo(tectonic);
+})
+tectonic.addTo(map);
 
 let legend = L.control({
   position: "bottomright"
